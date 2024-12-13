@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AvoController extends AbstractController
 {
-    #[Route('/avo', name: 'home')]
+    #[Route('/', name: 'home')]
     public function index(): Response
     {
         return $this->render('avo/index.html.twig', [
@@ -16,7 +16,7 @@ class AvoController extends AbstractController
         ]);
     }
 
-        /**
+    /**
      * @Route("/api/classes", name="classes")
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
@@ -53,14 +53,14 @@ class AvoController extends AbstractController
                 'name' => 'Grade 7',
             ]
         ];
-    
+
         $response = new Response();
 
         $response->headers->set('Content-Type', 'application/json');
         $response->headers->set('Access-Control-Allow-Origin', '*');
 
         $response->setContent(json_encode($classes));
-        
+
         return $response;
     }
 }
