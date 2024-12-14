@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\StudentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StudentRepository::class)]
@@ -16,9 +18,16 @@ class Student
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\ManyToOne(inversedBy: 'students')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Group $class = null;
+    #[ORM\Column(length: 1)]
+    private ?int $status = 1;
+
+    #[ORM\ManyToMany(targetEntity: ClassRoom::class, mappedBy: 'students')]
+    private Collection $classRooms;
+
+    public function __construct()
+    {
+        $this->classRooms = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -30,6 +39,11 @@ class Student
         return $this->name;
     }
 
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
     public function setName(string $name): static
     {
         $this->name = $name;
@@ -37,14 +51,36 @@ class Student
         return $this;
     }
 
-    public function getClass(): ?Group
+    public function setStatus(int $status): static
     {
-        return $this->class;
+        $this->status = $status;
+
+        return $this;
     }
 
-    public function setClass(?Group $class): static
+    /**
+     * @return Collection<int, ClassRoom>
+     */
+    public function getClassRooms(): Collection
     {
-        $this->class = $class;
+        return $this->classRooms;
+    }
+
+    public function addClassRoom(ClassRoom $classRoom): static
+    {
+        if (!$this->classRooms->contains($classRoom)) {
+            $this->classRooms->add($classRoom);
+            $classRoom->addStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClassRoom(ClassRoom $classRoom): static
+    {
+        if ($this->classRooms->removeElement($classRoom)) {
+            $classRoom->removeStudent($this);
+        }
 
         return $this;
     }

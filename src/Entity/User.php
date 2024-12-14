@@ -29,12 +29,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\OneToMany(targetEntity: Group::class, mappedBy: 'teacher')]
-    private Collection $groupsList;
+    #[ORM\ManyToMany(targetEntity: ClassRoom::class, mappedBy: 'teachers')]
+    private Collection $classRooms;
 
     public function __construct()
     {
-        $this->groupsList = new ArrayCollection();
+        $this->classRooms = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,30 +108,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Group>
+     * @return Collection<int, ClassRoom>
      */
-    public function getGroupsList(): Collection
+    public function getClassRooms(): Collection
     {
-        return $this->groupsList;
+        return $this->classRooms;
     }
 
-    public function addGroupsList(Group $groupsList): static
+    public function addClassRoom(ClassRoom $classRoom): static
     {
-        if (!$this->groupsList->contains($groupsList)) {
-            $this->groupsList->add($groupsList);
-            $groupsList->setTeacher($this);
+        if (!$this->classRooms->contains($classRoom)) {
+            $this->classRooms->add($classRoom);
+            $classRoom->addTeacher($this);
         }
 
         return $this;
     }
 
-    public function removeGroupsList(Group $groupsList): static
+    public function removeClassRoom(ClassRoom $classRoom): static
     {
-        if ($this->groupsList->removeElement($groupsList)) {
-            // set the owning side to null (unless already changed)
-            if ($groupsList->getTeacher() === $this) {
-                $groupsList->setTeacher(null);
-            }
+        if ($this->classRooms->removeElement($classRoom)) {
+            $classRoom->removeTeacher($this);
         }
 
         return $this;
