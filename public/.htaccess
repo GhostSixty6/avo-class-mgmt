@@ -24,6 +24,13 @@ DirectoryIndex index.php
 
     RewriteEngine On
 
+    # If SSL is enabled, redirect to https
+    <IfModule mod_ssl.c>
+        RewriteCond %{HTTPS} off
+        RewriteCond %{HTTP:X-Forwarded-Proto} !https
+        RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    </IfModule>
+
     # Determine the RewriteBase automatically and set it as environment variable.
     # If you are using Apache aliases to do mass virtual hosting or installed the
     # project in a subdirectory, the base path will be prepended to allow proper
