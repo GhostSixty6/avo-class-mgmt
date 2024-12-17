@@ -23,15 +23,24 @@ class StudentRepository extends ServiceEntityRepository
     }
 
     /**
+     * Finds all active Student objects
+     * @return Student[] Returns an array of Student objects
+     */
+    public function findAll(): array
+    {
+        $entityManager = $this->getEntityManager();
+        $query = $entityManager->createQuery("SELECT s FROM App\Entity\Student s WHERE s.status = 1");
+        return $query->getResult();
+    }
+
+    /**
      * Finds Student objects that are part of a classRoom
      * @return Student[] Returns an array of Student objects
      */
     public function findByClassRooms(ClassRoom $classRoom): array
     {
         $entityManager = $this->getEntityManager();
-
         $query = $entityManager->createQuery("SELECT s FROM App\Entity\Student s JOIN s.classRooms c WHERE s.status = 1 AND c.id = :id")->setParameter('id', $classRoom->getId());
-
         return $query->getResult();
     }
 }

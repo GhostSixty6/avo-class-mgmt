@@ -15,12 +15,14 @@ use App\Entity\User;
 
 class AvoController extends AbstractController
 {
-    #[Route('/', name: 'home')]
+    /**
+     * @Template("default/index.html.twig")
+     * @Route("/{reactRouting}", name="home", priority="-1", requirements={"reactRouting"="^(?!api).+"}, defaults={"reactRouting": null})
+     */
+    #[Route('/{reactRouting}', name: 'home', priority: '-1', requirements: ['reactRouting' => '^(?!api).+'], defaults: ['reactRouting' => null])]
     public function index(): Response
     {
-        return $this->render('avo/index.html.twig', [
-            'controller_name' => 'AvoController',
-        ]);
+        return $this->render('avo/index.html.twig');
     }
 
     /**
@@ -32,10 +34,9 @@ class AvoController extends AbstractController
     {
         $response = [];
         $data = json_decode($request->getContent(), true);
+        $currentUser = $this->getUser();
 
-        if (isset($data['action']) && isset($data['uid'])) {
-
-            $currentUser = $entityManager->getRepository(User::class)->find($data['uid']);
+        if (isset($data['action'])) {
 
             switch ($data['action']) {
                 case 'list':
@@ -86,66 +87,92 @@ class AvoController extends AbstractController
                     $is_admin = in_array('ROLE_ADMIN', $currentUser->getRoles());
                     $classRoom = $entityManager->getRepository(ClassRoom::class)->find($data['classRoom']);
 
-                    // Get Students
-
                     if ($is_admin || in_array($currentUser->getId(), $classRoom->getTeachersIds())) {
 
                         $response = [
                             'className' => $classRoom->getName(),
+                            'status' => $classRoom->getStatus(),
                             'students' => [],
                             'teachers' => [],
                         ];
 
-                        $students = $entityManager->getRepository(Student::class)->findByClassRooms($classRoom);
-
-                        foreach ($students as $student) {
+                        // Get Students
+                        foreach ($classRoom->getStudents() as $student) {
                             $id = $student->getId();
 
                             $response['students'][$id] = [
-                                'id' => $id,
-                                'name' => $student->getName(),
+                                'value' => $id,
+                                'label' => $student->getName(),
                             ];
                         }
 
                         // Get Teachers
-
-                        $teachers = $classRoom->getTeachers();
-
-                        foreach ($teachers as $teacher) {
+                        foreach ($classRoom->getTeachers() as $teacher) {
 
                             $id = $teacher->getId();
 
                             $response['teachers'][$id] = [
-                                'id' => $id,
-                                'name' => $teacher->getUsername(),
+                                'value' => $id,
+                                'label' => $teacher->getUsername(),
                             ];
                         }
                     }
 
                     break;
-                case 'create':
-
-                    $classRoom = new ClassRoom();
-                    $classRoom->setName($data['name']);
-                    $classRoom->addTeacher($currentUser);
-
-                    $entityManager->persist($classRoom);
-                    $entityManager->flush();
-
-                    $response = [
-                        'success' => 1
-                    ];
-
-                    break;
                 case 'update':
 
-                    $classRoom = $entityManager->getRepository(ClassRoom::class)->find($data['classRoom']);
-
-                    if ($classRoom && in_array($currentUser->getId(), $classRoom->getTeachersIds())) {
-                        $classRoom->setName($data['name']);
-                        $classRoom->setStatus($data['status']);
-                        $entityManager->flush();
+                    if (!empty($data['classRoom'])) { // Check if we are updating
+                        $classRoom = $entityManager->getRepository(ClassRoom::class)->find($data['classRoom']);
+                    } else { // Or Creating a new Class
+                        $classRoom = new ClassRoom();
                     }
+
+                    $classRoom->setName($data['name']);
+                    $entityManager->persist($classRoom); // Make sure we have an object to work with
+
+                    $teacher_count = 0; // In case we need to add the creator as a teacher
+
+                    // Add Teachers
+                    if (!empty($data['teachers'])) {
+                        foreach ($data['teachers'] as $teacherData) { // Loop through teacher values to load User objects
+                            $teacher = $entityManager->getRepository(User::class)->find($teacherData['value']);
+
+                            if ($teacher) {
+                                $teacher->addClassRoom($classRoom); // This will update both objects
+                                $entityManager->persist($teacher);
+                                $teacher_count++;
+                            }
+                        }
+                    }
+
+                    if (empty($teacher_count)) { //  Make sure the class has at least one teacher
+                        $classRoom->addTeacher($currentUser);
+                    }
+
+                    // Add Students
+                    if (!empty($data['students'])) {
+                        foreach ($data['students'] as $studentData) { // Loop through student values to load Student objects
+
+                            if (strpos($studentData['value'], 'new') !== false) { // Create this student before we add it
+                                $student = new Student();
+                                $student->setName($studentData['label']);
+                                $entityManager->persist($student);
+                            } else {
+                                $student = $entityManager->getRepository(User::class)->find($studentData['value']);
+                            }
+
+                            if ($student) {
+                                $student->addClassRoom($classRoom); // This will update both objects
+                                $entityManager->persist($student);
+                            }
+                        }
+                    }
+
+                    $entityManager->flush();
+
+                    $response = [ // Let the FE know of the status
+                        'success' => 1
+                    ];
 
                     break;
             }
@@ -171,59 +198,28 @@ class AvoController extends AbstractController
         $response = [];
         $data = json_decode($request->getContent(), true);
 
-        if (isset($data['action']) && isset($data['uid'])  && isset($data['classRoom'])) {
-
-            $currentUser = $entityManager->getRepository(User::class)->find($data['uid']);
-            $classRoom = $entityManager->getRepository(ClassRoom::class)->find($data['classRoom']);
-
+        if (isset($data['action'])) {
             switch ($data['action']) {
                 case 'list':
-
-                    $is_admin = in_array('ROLE_ADMIN', $currentUser->getRoles());
 
                     $response = [
                         'students' => [],
                     ];
 
-                    if ($is_admin || in_array($currentUser->getId(), $classRoom->getTeachersIds())) {
-
+                    if (isset($data['classRoom'])) {
+                        $classRoom = $entityManager->getRepository(ClassRoom::class)->find($data['classRoom']);
                         $students = $entityManager->getRepository(Student::class)->findByClassRooms($classRoom);
-
-                        foreach ($students as $student) {
-                            $id = $student->getId();
-
-                            $response['students'][$id] = [
-                                'id' => $id,
-                                'name' => $student->getName(),
-                            ];
-                        }
+                    } else {
+                        $students = $entityManager->getRepository(Student::class)->findAll();
                     }
 
-                    break;
-                case 'create':
+                    foreach ($students as $student) {
+                        $id = $student->getId();
 
-                    foreach ($data['names'] as $name) {
-                        $student = new Student();
-                        $student->setName($name);
-                        $student->addClassRoom($classRoom);
-
-                        $entityManager->persist($student);
-                        $entityManager->flush();
-                    }
-
-                    $response = [
-                        'success' => 1
-                    ];
-
-                    break;
-                case 'update':
-
-                    $student = $entityManager->getRepository(Student::class)->find($data['student']);
-
-                    if ($student && in_array($currentUser->getId(), $classRoom->getTeachersIds()) && in_array($data['student'], $classRoom->getStudentIds())) {
-                        $student->setName($data['name']);
-                        $student->setStatus($data['status']);
-                        $student->flush();
+                        $response['students'][$id] = [
+                            'value' => $id,
+                            'label' => $student->getName(),
+                        ];
                     }
 
                     break;
@@ -250,31 +246,26 @@ class AvoController extends AbstractController
         $response = [];
         $data = json_decode($request->getContent(), true);
 
-        if (isset($data['action']) && isset($data['uid'])) {
+        if (isset($data['action'])) {
 
             switch ($data['action']) {
-                case 'login':
+                case 'info':
 
-                    break;
-                case 'logout':
-
-                    break;
-                case 'auth':
+                    $response = [
+                        'roles' => $this->getUser()->getRoles(),
+                    ];
 
                     break;
                 case 'list':
 
-                    $currentUser = $entityManager->getRepository(User::class)->find($data['uid']);
-                    $is_admin = in_array('ROLE_ADMIN', $currentUser->getRoles());
-
-                    if ($is_admin) {
+                    if (in_array('ROLE_ADMIN', $this->getUser()->getRoles())) {
 
                         $response = [
                             'teachers' => [],
                             'admins' => [],
                         ];
 
-                        $teachers = $entityManager->getRepository(User::class)->findUsersByRole('ROLE_TEACHER');
+                        $teachers = $entityManager->getRepository(User::class)->findUsersByRole('ROLE_USER');
                         $admins = $entityManager->getRepository(User::class)->findUsersByRole('ROLE_ADMIN');
 
                         foreach ($teachers as $teacher) {
@@ -282,8 +273,8 @@ class AvoController extends AbstractController
                             $id = $teacher->getId();
 
                             $response['teachers'][$id] = [
-                                'id' => $id,
-                                'name' => $teacher->getName(),
+                                'value' => $id,
+                                'label' => $teacher->getName(),
                             ];
                         }
 
@@ -292,8 +283,8 @@ class AvoController extends AbstractController
                             $id = $admin->getId();
 
                             $response['admins'][$id] = [
-                                'id' => $id,
-                                'name' => $admin->getName(),
+                                'value' => $id,
+                                'label' => $admin->getName(),
                             ];
                         }
                     }
@@ -316,10 +307,9 @@ class AvoController extends AbstractController
                     break;
                 case 'update':
 
-                    $currentUser = $entityManager->getRepository(User::class)->find($data['uid']);
                     $user = $entityManager->getRepository(User::class)->find($data['user']);
 
-                    if ($user && in_array('ROLE_ADMIN', $currentUser->getRoles())) {
+                    if ($user && in_array('ROLE_ADMIN', $this->getUser()->getRoles())) {
                         $user->setUsername($data['name']);
                         $user->setStatus($data['status']);
 
