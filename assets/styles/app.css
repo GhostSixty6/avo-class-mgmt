@@ -3,6 +3,7 @@
     --fontBody: 'Itim', sans-serif;
     --fontHeading: 'Oswald', sans-serif;
     --colorMain: #28a745;
+    --itemShadow: 5px -3px black;
 }
 
 /* Base */
@@ -15,7 +16,19 @@ body {
     height: 100vh;
     font-family: var(--fontBody);
     font-size: 18px;
-    gap: 32px;
+    gap: 16px;
+    overflow: hidden;
+    margin: 0;
+}
+
+::-webkit-scrollbar {
+    height: 6px;
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--colorMain);
+    border-radius: 4px;
 }
 
 *,
@@ -29,7 +42,12 @@ img {
     border-style: none;
 }
 
-/* top_menu */
+a {
+    text-decoration: none;
+    color: var(--colorMain);
+}
+
+/* Header */
 
 .avo_top_menu {
     display: flex;
@@ -39,7 +57,7 @@ img {
     flex: 0 0 66px;
     border-radius: 12px;
     padding: 16px 0;
-    box-shadow: 3px 3px #28a745;
+    box-shadow: 3px 3px var(--colorMain);
     font-family: var(--fontHeading);
     text-transform: uppercase;
 }
@@ -55,7 +73,7 @@ img {
 .avo_top_menu_left svg {
     margin: 0 auto;
     text-align: center;
-    color: #28a745;
+    color: var(--colorMain);
     border-radius: 100%;
     padding: 6px;
     border: 2px dotted;
@@ -115,6 +133,8 @@ img {
     width: 100%;
     display: flex;
     flex-direction: column;
+    height: calc(100vh - 32px);
+    overflow-y: scroll;
 }
 
 #avo-bg {
@@ -174,19 +194,19 @@ img {
 .list-stats .avo-list .list-item {
     flex-basis: 24%;
     display: block;
-    box-shadow: 5px -3px black;
+    box-shadow: var(--itemShadow);
     transform: none !important;
 }
 
 .list-users .list-item {
-    box-shadow: 5px -3px black;
+    box-shadow: var(--itemShadow);
     transform: none !important;
     margin-top: 21px;
     flex-basis: 150px;
 }
 
 .avo-list .list-item:hover {
-    box-shadow: 5px -3px black;
+    box-shadow: var(--itemShadow);
     transform: translateY(3px);
 }
 
@@ -208,7 +228,18 @@ span.list-item-small {
 .list-item .avo-update {
     position: absolute;
     right: 6px;
-    top: 6px;
+    top: 0;
+    color: #6d6d6d;
+    transition: .2s ease-out;
+}
+
+.list-item .avo-update svg {
+    padding: 0;
+    background: transparent !important;
+}
+
+.list-item .avo-update:hover {
+    color: #000;
 }
 
 .list-item .avo-profile {
@@ -247,32 +278,6 @@ span.list-item-small {
     background: rgb(169 215 220);
 }
 
-a.title-update {
-    padding: 6px 12px;
-    display: inline-block;
-    margin: 0 21px;
-    background: #dca9a9;
-    color: #dc3545;
-    transition: .2s ease-out;
-    border-radius: 12px;
-    font-size: .5em;
-    text-decoration: none;
-    position: relative;
-    bottom: 4px;
-}
-
-a.title-update:hover {
-    box-shadow: 3px -3px #dc3545;
-    transform: translateY(3px);
-    text-decoration: none;
-    color: #dc3545;
-}
-
-a.title-update svg {
-    position: relative;
-    top: 2px;
-}
-
 /* Footer */
 
 .avo-footer {
@@ -302,7 +307,7 @@ form {
     width: 500px;
     background-color: #fff;
     border: 2px solid #000;
-    box-shadow: 5px -3px black;
+    box-shadow: var(--itemShadow);
     padding: 21px 21px 32px;
     border-radius: 12px;
     width: 500px;
@@ -332,6 +337,7 @@ textarea {
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
+    border-radius: 8px;
 }
 
 button,
@@ -375,6 +381,10 @@ input[type="month"] {
     -webkit-appearance: listbox;
 }
 
+input:invalid {
+    border-color: red;
+}
+
 textarea {
     overflow: auto;
     resize: vertical;
@@ -410,6 +420,8 @@ input[type="password"] {
     padding: 6px;
 }
 
+a.button,
+a.title-update,
 .avo-form-actions button,
 .avo-form-actions input[type="button"] {
     border-radius: 12px;
@@ -420,11 +432,34 @@ input[type="password"] {
     transition: .2s ease-out;
     text-transform: uppercase;
     font-weight: bold;
+    color: #000;
 }
 
-.avo-form-actions button:hover {
-    box-shadow: 5px -3px black;
+a.button:hover,
+a.title-update:hover,
+.avo-form-actions button:hover,
+.avo-form-actions input[type="button"]:hover {
+    box-shadow: var(--itemShadow);
     transform: translateY(3px);
+}
+
+a.title-update {
+    margin: 0 21px;
+    font-size: .4em;
+    position: relative;
+}
+
+.avo-page-title a.title-update {
+    bottom: 12px;
+}
+
+.avo-list-title a.title-update {
+    bottom: 8px;
+}
+
+a.title-update svg {
+    position: relative;
+    top: 2px;
 }
 
 .avo-form-actions {
@@ -501,92 +536,14 @@ input[type="password"] {
     }
 }
 
-/* Mobile */
+/* Error Page */
 
-@media screen and (max-width: 1280px) {
+.avo-content.page-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    body {
-        flex-direction: column;
-        margin: 0;
-        gap: 16px;
-    }
-
-    .avo_top_menu {
-        flex-direction: row;
-        width: calc(100vw - 32px);
-        padding: 6px 12px;
-        align-items: center;
-        gap: 12px;
-        flex-basis: auto;
-    }
-
-    .avo-content {
-        height: calc(100vh - 66px);
-        overflow: scroll;
-        padding: 0;
-    }
-
-    .avo_top_menu_left svg {
-        height: 32px;
-        width: 32px;
-        padding: 2px;
-        margin-top: 4px;
-    }
-
-    .avo_top_menu_nav a,
-    .avo_top_menu_right button {
-        padding: 6px 6px;
-    }
-
-    .avo_top_menu_nav a svg,
-    .avo_top_menu_right svg {
-        margin: 0 6px 0 0;
-        height: 18px;
-        width: 18px;
-        float: left;
-    }
-
-    .avo_top_menu_nav ul {
-        padding: 0;
-        gap: 4px;
-        flex-direction: row;
-    }
-
-    .avo_top_menu_right {
-        margin: 0 0 0 auto;
-        font-size: 0;
-    }
-
-    .avo_top_menu_right svg {
-        margin: 0;
-    }
-
-    .avo-page-title {
-        font-size: 1.6em;
-    }
-
-    .avo-footer {
-        gap: 16px;
-    }
-
-    .list-stats .avo-list .list-item {
-        flex: 1 0 46%;
-        text-align: left;
-    }
-
-    .avo-list-title {
-        font-size: 1.4em;
-    }
-
-    .avo-list .list-item {
-        flex: 1 0 46%;
-        white-space: unset;
-        text-align: center;
-    }
-
-    .list-stats .list-item svg {
-        height: 42px;
-        width: 42px;
-    }
-
+.avo-error {
+    text-align: center;
 }

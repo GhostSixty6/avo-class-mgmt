@@ -1,0 +1,100 @@
+@media screen and (max-width: 1280px) {
+
+    /* Base */
+
+    body {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    /* Header */
+
+    .avo_top_menu {
+        flex-direction: row;
+        width: calc(100vw - 32px);
+        padding: 6px 12px;
+        align-items: center;
+        gap: 12px;
+        flex-basis: auto;
+    }
+
+    .avo_top_menu_left svg {
+        height: 32px;
+        width: 32px;
+        padding: 2px;
+        margin-top: 4px;
+    }
+
+    .avo_top_menu_nav a,
+    .avo_top_menu_right button {
+        padding: 6px 6px;
+    }
+
+    .avo_top_menu_nav a svg,
+    .avo_top_menu_right svg {
+        margin: 0 6px 0 0;
+        height: 18px;
+        width: 18px;
+        float: left;
+    }
+
+    .avo_top_menu_nav ul {
+        padding: 0;
+        gap: 4px;
+        flex-direction: row;
+    }
+
+    .avo_top_menu_right {
+        margin: 0 0 0 auto;
+        font-size: 0;
+    }
+
+    .avo_top_menu_right svg {
+        margin: 0;
+    }
+
+
+    /* Page Content */
+
+    .avo-content {
+        height: calc(100vh - 66px);
+        padding: 12px 8px 0;
+    }
+
+    .avo-page-title {
+        font-size: 1.6em;
+    }
+
+    .list-stats .avo-list .list-item {
+        flex: 1 0 46%;
+        text-align: left;
+    }
+
+    .avo-list-title {
+        font-size: 1.4em;
+    }
+
+    .avo-list .list-item {
+        flex: 1 0 46%;
+        white-space: unset;
+        text-align: center;
+    }
+
+    .list-stats .list-item svg {
+        height: 42px;
+        width: 42px;
+    }
+
+    /* Page Footer */
+
+    .avo-footer {
+        gap: 16px;
+        font-size: .7em;
+    }
+
+    /* Loader */
+
+    .avo-skel {
+        overflow: hidden;
+    }
+}
