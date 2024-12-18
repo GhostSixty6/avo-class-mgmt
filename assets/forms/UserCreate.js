@@ -1,5 +1,11 @@
 import React, { Component, useState, useEffect } from "react";
-import { Route, Switch, Redirect, withRouter } from "react-router-dom";
+import {
+  Route,
+  Switch,
+  Redirect,
+  withRouter,
+  useNavigate,
+} from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
 import AvoAxios from "../components/AvoAxios";
@@ -10,6 +16,8 @@ import Loader from "../components/Loader";
 import Select from "react-select";
 
 export default function UserCreate() {
+  const navigate = useNavigate();
+
   const [userName, setUserName] = useState("");
   const [userPass, setUserPass] = useState("");
   const [userRole, setUserRole] = useState(null);
@@ -55,12 +63,7 @@ export default function UserCreate() {
       return;
     }
 
-    var admin = userRole.value ? 1 : 0; // Ensures we return an integer
-
-    console.log(userName);
-    console.log(userPass);
-    console.log(admin);
-    return;
+    var admin = userRole.value === true || userRole.value === 1 ? 1 : 0; // Ensures we return an integer
 
     AvoAxios.post("users/update", {
       name: userName,
@@ -68,7 +71,7 @@ export default function UserCreate() {
       admin: admin,
     }).then((res) => {
       sessionStorage.setItem("toastMessage", "New user created!");
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     });
   };
 

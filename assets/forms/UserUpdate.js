@@ -5,6 +5,7 @@ import {
   Redirect,
   withRouter,
   useParams,
+  useNavigate,
 } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -16,6 +17,7 @@ import Loader from "../components/Loader";
 import Select from "react-select";
 
 export default function UserUpdate() {
+  const navigate = useNavigate();
   const { user } = useParams();
   const [loading, setLoading] = useState(true);
 
@@ -72,13 +74,7 @@ export default function UserUpdate() {
       return;
     }
 
-    var admin = userRole.value ? 1 : 0; // Ensures we return an integer
-
-    console.log(user);
-    console.log(userName);
-    console.log(userPass);
-    console.log(admin);
-    return;
+    var admin = userRole.value === true || userRole.value === 1 ? 1 : 0; // Ensures we return an integer
 
     AvoAxios.post("users/update", {
       user: user,
@@ -87,7 +83,7 @@ export default function UserUpdate() {
       admin: admin,
     }).then((res) => {
       sessionStorage.setItem("toastMessage", "User updated!");
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     });
   };
 

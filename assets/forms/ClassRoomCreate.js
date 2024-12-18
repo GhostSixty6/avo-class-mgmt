@@ -1,5 +1,11 @@
 import React, { Component, useState, useEffect } from "react";
-import { Route, Switch, Redirect, withRouter } from "react-router-dom";
+import {
+  Route,
+  Switch,
+  Redirect,
+  withRouter,
+  useNavigate,
+} from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
 import AvoAxios from "../components/AvoAxios";
@@ -11,6 +17,7 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
 export default function ClassRoomCreate() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [className, setClassName] = useState("");
 
@@ -82,18 +89,13 @@ export default function ClassRoomCreate() {
       });
     }
 
-    console.log(className);
-    console.log(teachers);
-    console.log(students);
-    return;
-
     AvoAxios.post("classrooms/update", {
       name: className,
       teachers: teachers,
       students: students,
     }).then((res) => {
       sessionStorage.setItem("toastMessage", "New classroom created!");
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     });
   };
 

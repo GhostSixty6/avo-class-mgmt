@@ -6,6 +6,7 @@ import {
   Link,
   withRouter,
   useParams,
+  useNavigate,
 } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -18,6 +19,7 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
 export default function ClassRoomUpdate() {
+  const navigate = useNavigate();
   const { classRoom } = useParams();
   const [loading, setLoading] = useState(true);
 
@@ -112,13 +114,6 @@ export default function ClassRoomUpdate() {
       });
     }
 
-    console.log(classRoom);
-    console.log(className);
-    console.log(status);
-    console.log(teachers);
-    console.log(students);
-    return;
-
     AvoAxios.post("classrooms/update", {
       classRoom: classRoom,
       name: className,
@@ -127,7 +122,7 @@ export default function ClassRoomUpdate() {
       students: students,
     }).then((res) => {
       sessionStorage.setItem("toastMessage", "Classroom updated!");
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     });
   };
 
