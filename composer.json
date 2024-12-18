@@ -1,8 +1,8 @@
 {
-    "name": "symfony/website-skeleton",
+    "name": "mscode/avo-class-mgmt",
     "type": "project",
     "license": "MIT",
-    "description": "A skeleton to start a new Symfony website",
+    "description": "A platform to manage school classes, students and teachers",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
