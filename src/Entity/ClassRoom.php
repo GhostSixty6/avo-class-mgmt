@@ -104,6 +104,13 @@ class ClassRoom
         return $this;
     }
 
+    public function clearTeachers(): static
+    {
+        $this->teachers->clear();
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, Student>
      */
@@ -140,6 +147,13 @@ class ClassRoom
     public function removeStudent(Student $student): static
     {
         $this->students->removeElement($student);
+
+        return $this;
+    }
+
+    public function clearStudents(): static
+    {
+        $this->students->clear();
 
         return $this;
     }

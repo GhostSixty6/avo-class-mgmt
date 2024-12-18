@@ -138,8 +138,10 @@ class UserController extends AbstractController
             throw new \InvalidArgumentException('Missing password for ' . $data['user']);
         }
 
-        if (!empty($data['admin'])) { // set only if the user has been set as an admin
+        if (!empty($data['admin'])) { // set admin only if we are told
             $user->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
+        } else {
+            $user->setRoles(['ROLE_USER']); // otherwise fallback to default
         }
 
         $entityManager->persist($user); // Save the User Object

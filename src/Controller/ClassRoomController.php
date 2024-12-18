@@ -147,7 +147,7 @@ class ClassRoomController extends AbstractController
             $json['allTeachers'] = [];
 
             // Get all User Objects by role
-            $teachers = $entityManager->getRepository(User::class)->findByRoleNot('ROLE_ADMIN');
+            $teachers = $entityManager->getRepository(User::class)->findAll();
 
             foreach ($teachers as $teacher) {
                 $id = $teacher->getId();
@@ -186,6 +186,8 @@ class ClassRoomController extends AbstractController
             }
         } else { // Or Creating a new Class
             $classRoom = new ClassRoom();
+            $classRoom->setName("New Classroom");
+            $entityManager->persist($classRoom);
         }
 
         if (empty($data['name'])) { // Require a name atleast
@@ -193,28 +195,36 @@ class ClassRoomController extends AbstractController
         }
 
         $classRoom->setName($data['name']);
-        $entityManager->persist($classRoom); // Make sure we have an object to work with
-        $teacher_count = 0; // In case we need to add the creator as a teacher
 
         // Add Teachers
+        $data['teachers'] = !empty($data['teachers']) ? array_filter($data['teachers']) : []; // Clean up the teachers array
+
         if (!empty($data['teachers'])) {
+
+            $teacher_count = 0; // In case we need to add the creator as a teacher
+            $classRoom->clearTeachers();
+
             foreach ($data['teachers'] as $teacherId => $teacherLabel) { // Loop through teacher values to load User objects
                 $teacher = $entityManager->getRepository(User::class)->find($teacherId);
 
                 if ($teacher) {
-                    $teacher->addClassRoom($classRoom); // This will update both objects
-                    $entityManager->persist($teacher);
+                    $classRoom->addTeacher($teacher);
                     $teacher_count++;
                 }
             }
-        }
 
-        if (empty($teacher_count)) { //  Make sure the class has at least one teacher
-            $classRoom->addTeacher($currentUser);
+            if (empty($teacher_count)) { //  Make sure the class has at least one teacher
+                $classRoom->addTeacher($currentUser);
+            }
         }
 
         // Add Students
+        $data['students'] = !empty($data['students']) ? array_filter($data['students']) : []; // Clean up the students array
+
         if (!empty($data['students'])) {
+
+            $classRoom->clearStudents();
+
             foreach ($data['students'] as $studentId => $studentLabel) {  // Loop through student values to load Student objects
 
                 if (strpos($studentId, 'new') !== false) { // Create this student before we add it
@@ -222,11 +232,11 @@ class ClassRoomController extends AbstractController
                     $student->setName($studentLabel);
                     $entityManager->persist($student);
                 } else {
-                    $student = $entityManager->getRepository(User::class)->find($studentId);
+                    $student = $entityManager->getRepository(Student::class)->find($studentId);
                 }
 
                 if ($student) {
-                    $student->addClassRoom($classRoom); // This will update both objects
+                    $classRoom->addStudent($student);
                     $entityManager->persist($student); // Save the Student object
                 }
             }
