@@ -12,7 +12,11 @@ class Dashboard extends Component {
   constructor() {
     super();
 
-    this.state = { classrooms: [], loading: true };
+    this.state = {
+      classrooms: [],
+      userName: sessionStorage.getItem("userName"),
+      loading: true,
+    };
   }
 
   componentDidMount() {
@@ -30,6 +34,7 @@ class Dashboard extends Component {
     AvoAxios.post("classrooms/list").then((res) => {
       this.setState({
         classrooms: res.data,
+        userName: this.state.userName,
         loading: false,
         toastShown: false,
       });
@@ -41,13 +46,14 @@ class Dashboard extends Component {
     const stats = this.state.classrooms.stats;
     const currentClasses = this.state.classrooms.current;
     const allClasses = this.state.classrooms.all;
+    const userName = this.state.userName;
 
     return (
       <>
         <Header />
 
         <div className="avo-content">
-          <div className="avo-page-title">Welcome Back, Mitch Stroebel!</div>
+          <div className="avo-page-title">Welcome Back, {userName}!</div>
 
           {loading ? (
             <Loader />
