@@ -41,14 +41,41 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Finds all active User objects
+     * Finds all User objects
      * @return User[] Returns an array of User objects
      */
     public function findUsers(): ?array
     {
         $qb = $this->createQueryBuilder('u');
+        $qb->select('u');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Find all User objects with a specific role
+     * @return User[] Returns an array of User objects
+     */
+    public function findByRole($role): ?array
+    {
+        $qb = $this->createQueryBuilder('u');
         $qb->select('u')
-            ->where('u.status = 1');
+            ->where('u.roles LIKE :roles')
+            ->setParameter('roles', '%"' . $role . '"%');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Find all User objects that do not have a specific role
+     * @return User[] Returns an array of User objects
+     */
+    public function findByRoleNot($role): ?array
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->select('u')
+            ->where('u.roles NOT LIKE :roles')
+            ->setParameter('roles', '%"' . $role . '"%');
 
         return $qb->getQuery()->getResult();
     }
@@ -57,14 +84,17 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * Counts the amount of User objects with a specific role
      * @return int[] Returns an int with the amount of users with role
      */
-    public function findUsersCountByRole($role): ?int
+    public function countByRole($role): ?int
     {
-        $qb = $this->createQueryBuilder('u');
-        $qb->select('u')
-            ->where('u.status = 1')
-            ->where('u.roles LIKE :roles')
-            ->setParameter('roles', '%"' . $role . '"%');
+        return count($this->findByRole($role));
+    }
 
-        return $qb->getQuery()->getSingleScalarResult();
+    /**
+     * Counts the amount of User objects that do not have a specific role
+     * @return int[] Returns an int with the amount of users with role
+     */
+    public function countByRoleNot($role): ?int
+    {
+        return count($this->findByRoleNot($role));
     }
 }

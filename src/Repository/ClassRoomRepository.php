@@ -26,7 +26,7 @@ class ClassRoomRepository extends ServiceEntityRepository
      * Finds all ClassRoom objects
      * @return ClassRoom[] Returns an array of ClassRoom objects
      */
-    public function findByAll(): array
+    public function findAll(): array
     {
         return $this->createQueryBuilder('c')
             ->orderBy('c.id', 'ASC')
