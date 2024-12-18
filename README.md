@@ -2,14 +2,32 @@
 
 This project allows for the management of classrooms by admins (all classes) and teachers (classes assigned to them / created by them).
 
+![image](https://i.imgur.com/NjvdN2o.png)
 
-## Project Stack
+### Key Features
+- Teachers are able to log in and view their own classes
+- Teachers are able to add/remove students and teachers from their classes
+- Teachers can create new classes
+- Admins can view and manage all classes and also create new classes
+- Admins can update existing Admins/Teachers and create new users
+- Responsive and modern web interface with a Neo Brutalism design
 
-Frontend was built using [ReactJS](https://react.dev/).
+![image](https://i.imgur.com/19DQmg2.png)
 
-Backend was built using [Symfony](https://react.dev/).
+## Technical Stack
 
+### Backend
+- Framework: [Symfony](https://symfony.com/) (PHP 8.3)
+- Authentication: JWT (JSON Web Token)
+- Database: MariaDB/MySQL
 
+### Frontend
+- Framework: [ReactJS](https://react.dev/)
+- Routing: React Router
+- Icons: [Iconify](Iconify)
+
+![image](https://i.imgur.com/XHXzaTq.png)
+![image](https://i.imgur.com/Q1mwk9C.png)
 
 ## License
 
